@@ -100,7 +100,7 @@ def load_config():
         env("POLLINATIONS_MODEL", "zimage"),
         env("AICREDITS_IMAGE_MODEL", "black-forest-labs/flux-2-pro"),
         env("AICREDITS_IMAGE_QUALITY", "standard"),
-        env("AICREDITS_IMAGE_SIZE", "1792x1024"),
+        env("AICREDITS_IMAGE_SIZE", "1440x810"),
         env("REMOTIVE_ENABLED", "true").lower() == "true",
         env("REMOTIVE_API_URL", "https://remotive.com/api/remote-jobs"),
         env("ARBEITNOW_ENABLED", "true").lower() == "true",
