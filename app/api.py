@@ -83,6 +83,15 @@ def create_app():
         except Exception as exc:
             return jsonify({"status": "FAILED", "error": str(exc)[:500]}), 500
 
+    @app.post("/internal/telegram/set-webhook")
+    def telegram_set_webhook():
+        if not auth():
+            return jsonify({"error": "unauthorized"}), 401
+        try:
+            return jsonify(Telegram(c).set_webhook())
+        except Exception as exc:
+            return jsonify({"status": "FAILED", "error": str(exc)[:500]}), 500
+
     @app.post("/telegram/webhook")
     def webhook():
         if c.telegram_webhook_secret and request.headers.get("X-Telegram-Bot-Api-Secret-Token") != c.telegram_webhook_secret:
