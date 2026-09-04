@@ -1,0 +1,55 @@
+name: 24/7 AI Career + LinkedIn Automation
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "Which cycle to run"
+        required: true
+        default: both
+        type: choice
+        options:
+          - career
+          - linkedin
+          - both
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Validate scheduler secrets
+        env:
+          RENDER_BASE_URL: ${{ secrets.RENDER_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          [[ -n "${RENDER_BASE_URL:-}" ]] || { echo "Missing GitHub Secret: RENDER_BASE_URL"; exit 1; }
+          [[ -n "${CRON_SECRET:-}" ]] || { echo "Missing GitHub Secret: CRON_SECRET"; exit 1; }
+          echo "Scheduler secrets are configured."
+
+      - name: Trigger selected cycles
+        env:
+          RENDER_BASE_URL: ${{ secrets.RENDER_BASE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          TASK: ${{ inputs.task || 'both' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="${RENDER_BASE_URL%/}"
+          trigger() {
+            local endpoint="$1"
+            echo "Triggering ${endpoint}"
+            curl --fail-with-body --silent --show-error \
+              --connect-timeout 15 --max-time 180 \
+              -X POST "${base}${endpoint}" \
+              -H "X-Cron-Secret: ${CRON_SECRET}"
+            echo
+          }
+          if [[ "$TASK" == "career" || "$TASK" == "both" ]]; then trigger "/internal/cron/career"; fi
+          if [[ "$TASK" == "linkedin" || "$TASK" == "both" ]]; then trigger "/internal/cron/linkedin"; fi

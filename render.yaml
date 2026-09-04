@@ -1,0 +1,94 @@
+services:
+  - type: web
+    name: ai-linkedin-auto-poster
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --timeout 180 wsgi:app
+    healthCheckPath: /health
+    envVars:
+      - key: FIREBASE_DATABASE_URL
+        sync: false
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false
+      - key: CRON_SECRET
+        sync: false
+      - key: TIMEZONE
+        value: Asia/Kolkata
+      - key: JOB_MATCH_THRESHOLD
+        value: "70"
+      - key: CAREER_SCAN_INTERVAL_MINUTES
+        value: "30"
+      - key: LINKEDIN_POST_INTERVAL_MINUTES
+        value: "30"
+      - key: LINKEDIN_MIN_POST_INTERVAL_MINUTES
+        value: "30"
+      - key: LINKEDIN_VERSION
+        value: "202606"
+      - key: LINKEDIN_PUBLISH_ENABLED
+        value: "true"
+      - key: OPENROUTER_MODEL
+        value: "openrouter/free"
+      - key: AICREDITS_API_KEY
+        sync: false
+      - key: AICREDITS_BASE_URL
+        value: "https://api.aicredits.in/v1"
+      - key: AICREDITS_CHAT_MODEL
+        value: "openai/gpt-4o-mini"
+      - key: AICREDITS_IMAGE_MODEL
+        value: "black-forest-labs/flux-2-pro"
+      - key: AICREDITS_IMAGE_SIZE
+        value: "1792x1024"
+      - key: AICREDITS_IMAGE_QUALITY
+        value: "standard"
+      - key: REMOTIVE_ENABLED
+        value: "true"
+      - key: ARBEITNOW_ENABLED
+        value: "true"
+      - key: POLLINATIONS_WIDTH
+        value: "1536"
+      - key: POLLINATIONS_HEIGHT
+        value: "864"
+      - key: POLLINATIONS_MODEL
+        value: "zimage"
+      - key: LINKEDIN_CLIENT_ID
+        sync: false
+      - key: LINKEDIN_CLIENT_SECRET
+        sync: false
+      - key: LINKEDIN_ACCESS_TOKEN
+        sync: false
+      - key: LINKEDIN_USER_URN
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: HUGGINGFACE_API_KEY
+        sync: false
+      - key: HUGGINGFACE_MODEL
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: TELEGRAM_ADMIN_USER_ID
+        sync: false
+      - key: PROFILE_SKILLS
+        sync: false
+      - key: PROFILE_TECHNOLOGIES
+        sync: false
+      - key: PROFILE_EXPERIENCE
+        sync: false
+      - key: PROFILE_PREFERRED_ROLES
+        sync: false
+      - key: PROFILE_REMOTE_PREFERENCE
+        value: remote
+      - key: PROFILE_SALARY_PREFERENCE
+        sync: false
+      - key: PROFILE_LOCATION_PREFERENCE
+        value: India
+      - key: PROFILE_PORTFOLIO
+        sync: false
+      - key: PROFILE_GITHUB
+        sync: false
+      - key: PROFILE_LINKEDIN
+        sync: false
+      - key: PROFILE_RESUME_METADATA
+        sync: false
