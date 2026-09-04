@@ -14,6 +14,14 @@ on:
           - career
           - linkedin
           - both
+      force:
+        description: "Force LinkedIn post now? (bypasses cooldown, manual runs only)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 permissions:
   contents: read
@@ -38,6 +46,7 @@ jobs:
           RENDER_BASE_URL: ${{ secrets.RENDER_BASE_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           TASK: ${{ inputs.task || 'both' }}
+          FORCE: ${{ inputs.force || 'false' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -52,4 +61,10 @@ jobs:
             echo
           }
           if [[ "$TASK" == "career" || "$TASK" == "both" ]]; then trigger "/internal/cron/career"; fi
-          if [[ "$TASK" == "linkedin" || "$TASK" == "both" ]]; then trigger "/internal/cron/linkedin"; fi
+          if [[ "$TASK" == "linkedin" || "$TASK" == "both" ]]; then
+            if [[ "$FORCE" == "true" ]]; then
+              trigger "/internal/cron/linkedin?force=true"
+            else
+              trigger "/internal/cron/linkedin"
+            fi
+          fi

@@ -74,8 +74,12 @@ def create_app():
     def linkedin():
         if not auth():
             return jsonify({"error": "unauthorized"}), 401
+        force = request.args.get("force", "").lower() == "true"
+        if not force:
+            body = request.get_json(silent=True) or {}
+            force = body.get("force") is True
         try:
-            return jsonify(Agent(c).linkedin())
+            return jsonify(Agent(c).linkedin(force=force))
         except Exception as exc:
             return jsonify({"status": "FAILED", "error": str(exc)[:500]}), 500
 

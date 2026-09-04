@@ -122,14 +122,26 @@ SOURCE: {job['source']}"""
             metrics = {"found": len(jobs), "new": new, "strong": strong}
             agent_run("career", "SUCCESS", metrics=metrics)
             set_setting("last_career_scan", now_iso())
+            try:
+                ai_ok = bool(self.c.openrouter_key or self.c.aicredits_key)
+                warn = "" if ai_ok else "\n⚠️ No OPENROUTER_API_KEY/AICREDITS_API_KEY configured — using safe fallback scorer, matches may be under-scored."
+                self.t.send(
+                    f"🔍 Career scan complete\nFound: {len(jobs)} | New: {new} | Strong matches: {strong}{warn}"
+                )
+            except Exception:
+                pass
             return {"status": "SUCCESS", **metrics}
         except Exception as exc:
             agent_run("career", "FAILED", error=str(exc))
+            try:
+                self.t.send(f"⚠️ CAREER SCAN FAILED\n\nReason: {str(exc)[:500]}")
+            except Exception:
+                pass
             raise
         finally:
             unlock("career", lid)
 
-    def linkedin(self):
+    def linkedin(self, force=False):
         ok, lid = lock("linkedin", self.c.linkedin_interval * 60)
         if not ok:
             return {"status": "SKIPPED", "reason": "lock held"}
@@ -138,7 +150,7 @@ SOURCE: {job['source']}"""
                 return {"status": "PAUSED_OR_DISABLED"}
             posts = linkedin_posts_latest(50)
             published = [p for p in posts if p.get("status") == "PUBLISHED" and p.get("published_at")]
-            if published:
+            if published and not force:
                 try:
                     last_dt = datetime.fromisoformat(str(published[0]["published_at"]).replace("Z", "+00:00"))
                     if (datetime.now(timezone.utc) - last_dt).total_seconds() < self.c.linkedin_min_interval * 60:
