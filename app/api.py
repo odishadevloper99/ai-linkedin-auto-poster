@@ -119,6 +119,11 @@ def create_app():
         uid = message.get("from", {}).get("id")
         text = (message.get("text") or "").strip()
         if not t.admin(uid):
+            if text.startswith("/start") or text.startswith("/status"):
+                try:
+                    t.send(f"🔒 Not authorized.\nYour Telegram ID: {uid}\nSet this exact value as TELEGRAM_ADMIN_USER_ID on Render, then try again.")
+                except Exception:
+                    pass
             return jsonify({"ok": True})
 
         if text.startswith("/pause"):
